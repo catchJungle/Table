@@ -5,6 +5,7 @@ from pymongo import MongoClient
 import datetime
 from datetime import datetime, timedelta
 import os
+from functools import wraps
 
 app = Flask(__name__)
 mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/mydatabase")
@@ -116,6 +117,31 @@ def table_info():
 #    # jwt 를 받아와서 유저 정보 table collection에 입력
 
 
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].split(" ")[1]
+
+        if not token:
+            return jsonify({'result':'failure', 'message': 'Token is missing'}), 401
+        
+        try:
+            data = jwt.decode(token, "secret", algorithms=["HS256"])
+            current_user = collection_user.find_one({"username": data["id"]})
+        except:
+            return jsonify({'result':'failure', 'message': 'Token is invalid!'}), 401
+        
+        return f(current_user, *args, **kwargs)
+    
+    return decorated
+
+@app.route("/button", methods=["GET"])
+@token_required
+def test_button(current_user):
+    return jsonify({'result':'success', 'message':'This is a protected route .', 'user': current_user["username"]})
 
 
 if __name__ == "__main__":
