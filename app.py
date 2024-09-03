@@ -19,7 +19,7 @@ def index():
 def mongo():
     collection.insert_one({"status":"opened"})
 
-    users = collection.find({})
+    users = list(collection.find({}))
     return jsonify(users)
 
 if __name__ == "__main__":
