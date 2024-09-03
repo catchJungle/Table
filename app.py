@@ -84,6 +84,39 @@ def sign_in():
         return jsonify({"result": "success", "token": token})
     return jsonify({"result": "failure"})
 
+def is_occupied(tableNum):
+    seat = collection_table.find_one({"tableNum": tableNum})
+    return seat.get("occupied")
+
+
+@app.route("/room", method=["GET"])
+def room_info():
+    tables = list(collection_table.find({}, {"_id":0}))
+
+    return jsonify({'result': 'success', 'tables': tables})
+
+
+@app.route("/table/info", methods=["GET"])
+def table_info():
+    tableNum = request.args.get("tableNum")
+    if not is_occupied(tableNum):
+        return jsonify({'result':'failure', 'message':'taken seat info request'})
+
+    table = collection_table.find_one({"tableNum": tableNum})
+    return jsonify({'result':'success', 'table':table})
+
+
+#@app.route("/table", methods=['POST'])
+#def request_table():
+#    tableNum = request.args.get("tableNum")
+#    if is_occupied(tableNum):
+#        return jsonify({'result':'failure', 'message':'already taken seat'})
+#    
+#    table = collection_table.find_one({"tableNum": tableNum})
+#    # jwt 를 받아와서 유저 정보 table collection에 입력
+
+
+
 
 if __name__ == "__main__":
     app.run("0.0.0.0", port=5000, debug=True)
