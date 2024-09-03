@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- Bootstrap-->
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
@@ -18,31 +19,207 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
     />
+
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"
+    ></script>
+    <script>
+      let chosenTable;
+      function getCookie(name) {
+        let value = `; ${document.cookie}`;
+        console.log(value);
+        let parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+      }
+      function show_tables() {
+        $.ajax({
+          type: "GET",
+          url: "/room",
+          data: {},
+          success: function (response) {
+            if (response["result"] == "success") {
+              const tables = response["tables"];
+              $(".upper button").each(function (index) {
+                const table = tables[index];
+                $(this).text(`${table.tableNum}`);
+                if (table.occupied) {
+                  $(this).addClass("is-success");
+                } else {
+                  $(this).addClass("is-dark");
+                }
+              });
+
+              // 하위 6개의 테이블 번호를 downer div의 버튼에 매칭
+              $(".downer button").each(function (index) {
+                const table = tables[index + 12]; // 12번째 이후 테이블 가져오기
+                $(this).text(`${table.tableNum}`);
+                if (table.occupied) {
+                  $(this).addClass("is-success");
+                } else {
+                  $(this).addClass("is-dark");
+                }
+              });
+            } else {
+              console.log("Table data load is failed");
+            }
+          },
+        });
+      }
+
+      function clickedTable(button) {
+        chosenTable = $(button).attr("data-table-num"); // 클릭된 버튼의 테이블 번호를 저장
+        console.log(`Chosen table: ${chosenTable}`); // 콘솔에 선택된 테이블 번호 출력
+      }
+
+      function completeReservation() {
+        const token = getCookie("myToken");
+        let test = `Bearer ${token}`;
+        console.log(token);
+        if (chosenTable !== null) {
+          $.ajax({
+            type: "POST",
+            url: "/reserve", // 백엔드에서 예약 요청을 처리할 엔드포인트
+            headers: { Authorization: test },
+            data: { tableNum_give: chosenTable },
+            success: function (response) {
+              if (response["result"] === "success") {
+                alert(`Table ${chosenTable} reserved successfully!`);
+              } else {
+                alert("Reservation failed!");
+              }
+              // 선택된 테이블 초기화
+              chosenTable = null;
+            },
+            error: function () {
+              alert("Error occurred while reserving the table.");
+            },
+          });
+        } else {
+          alert("No table selected.");
+        }
+      }
+
+      $(document).ready(function () {
+        show_tables();
+      });
+    </script>
   </head>
   <body>
     <div class="wrap">
       <div class="upper">
-        <button class="button is-small">Small</button>
-        <button class="button is-small">Small</button>
-        <button class="button is-small">Small</button>
-        <button class="button is-small">Small</button>
-        <button class="button is-small">Small</button>
-        <button class="button is-small">Small</button>
-        <button class="button is-small">Small</button>
-        <button class="button is-small">Small</button>
-        <button class="button is-small">Small</button>
-        <button class="button is-small">Small</button>
-        <button class="button is-small">Small</button>
-        <button class="button is-small">Small</button>
+        <button
+          class="button is-small"
+          data-table-num="1"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="2"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="3"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="4"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="5"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="6"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="7"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="8"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="9"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="10"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="11"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="12"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
       </div>
       <div class="downer">
-        <button class="button">Default</button>
-        <button class="button">Default</button>
-        <button class="button">Default</button>
-        <button class="button">Default</button>
-        <button class="button">Default</button>
-        <button class="button">Default</button>
+        <button class="button" data-table-num="13" onclick="clickedTable(this)">
+          Default
+        </button>
+        <button class="button" data-table-num="14" onclick="clickedTable(this)">
+          Default
+        </button>
+        <button class="button" data-table-num="15" onclick="clickedTable(this)">
+          Default
+        </button>
+        <button class="button" data-table-num="16" onclick="clickedTable(this)">
+          Default
+        </button>
+        <button class="button" data-table-num="17" onclick="clickedTable(this)">
+          Default
+        </button>
+        <button class="button" data-table-num="18" onclick="clickedTable(this)">
+          Default
+        </button>
       </div>
+      <button
+        id="complete-button"
+        class="button is-primary"
+        onclick="completeReservation()"
+      >
+        Complete
+      </button>
     </div>
   </body>
 </html>
