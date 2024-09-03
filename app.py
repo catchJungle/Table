@@ -29,6 +29,11 @@ def signup():
     return render_template("signup.html")
 
 
+@app.route("/main/show")
+def show():
+    return jsonify({"result": "success"})
+
+
 @app.route("/sign_up/save", methods=["POST"])
 def sign_up():
     username_receive = request.form["username_give"]
