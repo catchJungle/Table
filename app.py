@@ -7,13 +7,11 @@ from datetime import datetime, timedelta
 import os
 
 app = Flask(__name__)
-
 mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/mydatabase")
-
 client = MongoClient(mongo_uri)
 db = client["mydatabase"]
-
-collection = db["user"]
+collection_user = db["user"]
+collection_table = db["table"]
 
 
 @app.route("/")
@@ -23,13 +21,17 @@ def home():
 
 @app.route("/main")
 def main():
-    print("hello")
     return render_template("main.html")
 
 
 @app.route("/signup")
 def signup():
     return render_template("signup.html")
+
+
+@app.route("/main/show")
+def show():
+    return jsonify({"result": "success"})
 
 
 @app.route("/sign_up/save", methods=["POST"])
@@ -49,7 +51,7 @@ def sign_up():
         "password": password_hash,
         "phone": phone_receive,
     }
-    collection.insert_one(doc)
+    collection_user.insert_one(doc)
 
     return jsonify({"result": "success"})
 
@@ -59,11 +61,11 @@ def sign_in():
     username_receive = request.form["username_give"]
     password_receive = request.form["password_give"]
 
-    # print(username_receive)
-    # print(password_receive)
+    print(username_receive)
+    print(password_receive)
 
     password_hash = hashlib.sha256(password_receive.encode("utf-8")).hexdigest()
-    result = collection.find_one(
+    result = collection_user.find_one(
         {
             "username": username_receive,
             "password": password_hash,
