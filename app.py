@@ -89,7 +89,7 @@ def is_occupied(tableNum):
     return seat.get("occupied")
 
 
-@app.route("/room", method=["GET"])
+@app.route("/room", methods=["GET"])
 def room_info():
     tables = list(collection_table.find({}, {"_id":0}))
 
