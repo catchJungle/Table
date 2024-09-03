@@ -4,16 +4,27 @@ import hashlib
 from pymongo import MongoClient
 import datetime
 from datetime import datetime, timedelta
+import os
 
 app = Flask(__name__)
 
-client = MongoClient("localhost", 27017)
-db = client.jungle
+mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/mydatabase")
+
+client = MongoClient(mongo_uri)
+db = client["mydatabase"]
+
+collection = db["user"]
 
 
 @app.route("/")
 def home():
     return render_template("signin.html")
+
+
+@app.route("/main")
+def main():
+    print("hello")
+    return render_template("main.html")
 
 
 @app.route("/signup")
@@ -38,7 +49,7 @@ def sign_up():
         "password": password_hash,
         "phone": phone_receive,
     }
-    db.myusers.insert_one(doc)
+    collection.insert_one(doc)
 
     return jsonify({"result": "success"})
 
@@ -48,11 +59,11 @@ def sign_in():
     username_receive = request.form["username_give"]
     password_receive = request.form["password_give"]
 
-    print(username_receive)
-    print(password_receive)
+    # print(username_receive)
+    # print(password_receive)
 
     password_hash = hashlib.sha256(password_receive.encode("utf-8")).hexdigest()
-    result = db.myusers.find_one(
+    result = collection.find_one(
         {
             "username": username_receive,
             "password": password_hash,
