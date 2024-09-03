@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>회원가입</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
+      .signup-container {
+        background-color: #fff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        width: 300px;
+        text-align: center;
+      }
+      .signup-container h1 {
+        margin-bottom: 1rem;
+      }
+      .signup-container input[type="text"],
+      .signup-container input[type="password"],
+      .signup-container input[type="tel"] {
+        width: 100%;
+        padding: 0.75rem;
+        margin: 0.5rem 0;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .signup-container button {
+        width: 100%;
+        padding: 0.75rem;
+        background-color: #007bff;
+        border: none;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      .signup-container button:hover {
+        background-color: #0056b3;
+      }
+      .signup-container a {
+        display: block;
+        margin-top: 1rem;
+        color: #007bff;
+        text-decoration: none;
+      }
+      .signup-container a:hover {
+        text-decoration: underline;
+      }
+    </style>
+    <script>
+      function sign_up() {
+        console.log("sign_up");
+        let username = $("#username").val();
+        let password = $("#password").val();
+        let phone = $("#phone").val();
+
+        console.log(username);
+        console.log(password);
+        console.log(phone);
+
+        $.ajax({
+          type: "POST",
+          url: "/sign_up/save",
+          data: {
+            username_give: username,
+            password_give: password,
+            phone_give: phone,
+          },
+          success: function (response) {},
+        });
+      }
+    </script>
+  </head>
+  <body>
+    <div class="signup-container">
+      <h1>회원가입</h1>
+      <form>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          placeholder="사용자 이름"
+        />
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="비밀번호"
+        />
+        <input type="text" id="phone" name="phone" placeholder="전화번호" />
+        <a type="submit" onclick="sign_up()">가입완료</a>
+      </form>
+    </div>
+  </body>
+</html>
