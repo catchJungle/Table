@@ -18,9 +18,7 @@ def index():
 @app.route('/mongo')
 def mongo():
     collection.insert_one({"status":"opened"})
-
-    users = list(collection.find({}))
-    return jsonify(users)
+    return render_template('index.html')
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
