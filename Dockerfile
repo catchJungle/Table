@@ -1,6 +1,12 @@
-FROM openjdk:17
+FROM python:3.12-slim
 WORKDIR /app
-COPY build/libs/*.jar /app/app.jar
+COPY requirements.txt .
+
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+COPY . .
+
 EXPOSE 8080
-ENV SPRING_PROFILES_ACTIVE=dev
-CMD ["java", "-jar", "app.jar"]
+ENV FLASK_ENV=development
+CMD ["flask", "run", "--host=0.0.0.0"]
