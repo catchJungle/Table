@@ -176,7 +176,13 @@ def reserve_table(current_user):
 
     collection_table.update_one(
         {"tableNum": int(tableNum_receive)},
-        {"$set": {"occupied": True, "user_name": current_user["username"], "time": datetime.now() + timedelta(hours=2)}},
+        {
+            "$set": {
+                "occupied": True,
+                "user_name": current_user["username"],
+                "time": datetime.now() + timedelta(hours=2),
+            }
+        },
     )
 
     collection_user.update_one(
@@ -194,7 +200,7 @@ def cancel_table(current_user):
     if is_reserved > 0:  # 예약되어있는 경우 DB에서 예약을 False로 바꾼다.
         collection_table.update_one(
             {"tableNum": is_reserved},
-            {"$set": {"occupied": False, "user_name": "None"}},
+            {"$set": {"occupied": False, "user_name": "None", "time": None}},
         )
         collection_user.update_one(
             {"_id": current_user["_id"]}, {"$set": {"is_reserved": 0}}
@@ -203,6 +209,7 @@ def cancel_table(current_user):
         return jsonify({"result": "fail", "message": "예약된 내용이 없습니다."})
 
     return jsonify({"result": "success"})
+
 
 @app.route("/time", methods=["GET"])
 def timeRecall():
@@ -213,23 +220,19 @@ def timeRecall():
     user = table.get("user_name")
 
     if savedTime is None:
-        return jsonify({"result":"failure", "message":"no time saved"})
-    
+        return jsonify({"result": "failure", "message": "no time saved"})
+
     currentTime = datetime.now()
-    timeDifference = savedTime-currentTime
+    timeDifference = savedTime - currentTime
     total_seconds = int(timeDifference.total_seconds())
 
     if total_seconds < 0:
-        return jsonify({"result": "failure", "message":"no time saved"})
+        return jsonify({"result": "failure", "message": "no time saved"})
 
     minutes = total_seconds // 60
     seconds = total_seconds % 60
 
-    return jsonify({
-        "result":"success",
-        "time": [minutes, seconds],
-        "user": user
-    })
+    return jsonify({"result": "success", "time": [minutes, seconds], "user": user})
 
 
 if __name__ == "__main__":

@@ -241,73 +241,79 @@
     <script>
       let intervalId;
 
-      function timeRecall(button) {
+      function timeCall(button) {
         const tableNum = $(button).data("table-num");
-        function timeCall() {
-          $.ajax({
-            type: "GET",
-            url: "/time",
-            data: {tableNum : tableNum},
-            success: function(response) {
-              if (response.result === "success") {
-                let minutes = response.time[0];
-                let seconds = response.time[1];
-                let username = response.user;
-                console.log(`${minutes}분 ${seconds}초`);
+        $.ajax({
+          type: "GET",
+          url: "/time",
+          data: { tableNum: tableNum },
+          success: function (response) {
+            if (response.result === "success") {
+              let minutes = response.time[0];
+              let seconds = response.time[1];
+              let username = response.user;
+              console.log(`${minutes}분 ${seconds}초`);
 
-                $('#time-display').text(`${username}, ${minutes}분 ${seconds}초`);
-              
-                intervalId = setInterval(function() {
-                  if (seconds === 0) {
-                    if (minutes > 0) {
-                      minutes--;
-                      seconds = 59;
-                    } else {
-                      clearInterval(intervalId);
-                      console.log('Time is up!');
-                      return;
-                    }
+              $("#time-display").text(`${username}, ${minutes}분 ${seconds}초`);
+
+              intervalId = setInterval(function () {
+                if (seconds === 0) {
+                  if (minutes > 0) {
+                    minutes--;
+                    seconds = 59;
                   } else {
-                    seconds --;
+                    clearInterval(intervalId);
+                    console.log("Time is up!");
+                    return;
                   }
-                  $('#time-display').text(`${username}, ${minutes}분 ${seconds}초`);
-                }, 1000);
-
-              } else {
-                console.log('could not load the time');
-              }
+                } else {
+                  seconds--;
+                }
+                $("#time-display").text(
+                  `${username}, ${minutes}분 ${seconds}초`
+                );
+              }, 1000);
+            } else {
+              console.log("could not load the time");
             }
-          });
-        }
-        timeCall();
+          },
+        });
       }
 
-      $(document).ready(function() {
-        $(".button").on("mouseenter", function(event) {
-        
+      function showLeftime() {
+        $(".button").on("mouseenter", function (event) {
           const button = this;
-          timeRecall(button);
 
-          $('#time-display').css({
-            left: event.pageX + 15 + 'px',
-            top: event.pageY + 15 + 'px',
-            display: 'block'
+          if (!$(button).hasClass("is-danger")) {
+            return; // 예약되지 않은 테이블이라면 함수 실행을 멈춤.
+          }
+          timeCall(button);
+
+          $("#time-display").css({
+            left: event.pageX + 15 + "px",
+            top: event.pageY + 15 + "px",
+            display: "block",
           });
         });
 
-        $(".button").on("mousemove", function(event) {
-          $('#time-display').css({
-            left: event.pageX + 15 + 'px',
-            top: event.pageY + 15 + 'px'
+        $(".button").on("mousemove", function (event) {
+          $("#time-display").css({
+            left: event.pageX + 15 + "px",
+            top: event.pageY + 15 + "px",
           });
         });
 
-        $(".button").on("mouseleave", function() {
+        $(".button").on("mouseleave", function () {
           clearInterval(intervalId);
-          $('#time-display').hide(); 
+          $("#time-display").hide();
         });
-      });
+      }
 
+      $(document).ready(function () {
+        show_tables();
+        show_status();
+        showLeftime();
+      });
     </script>
   </head>
   <body>
