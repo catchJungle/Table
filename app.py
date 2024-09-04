@@ -118,7 +118,7 @@ def sign_up():
     existing_user = collection_user.find_one({"username":username_receive})
 
     if existing_user:
-        return jsonify({"result":"fail", "message" : "username already in use"})
+        return jsonify({"result":"failure", "message" : "이미 사용 중인 username 입니다."}), 400
 
     password_hash = hashlib.sha256(password_receive.encode("utf-8")).hexdigest()
 

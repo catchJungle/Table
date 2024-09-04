@@ -84,11 +84,16 @@
               // 회원가입 성공 시 로그인 페이지로 리다이렉트
               alert("회원가입에 성공했습니다. 다시 로그인 해주세요.");
               window.location.href = "/";
-            } else {
-              // 실패 시 처리
-              alert("회원가입에 실패했습니다. 다시 시도해 주세요.");
             }
           },
+          error: function (xhr) {
+            if (xhr.status === 400) {
+              const response = JSON.parse(xhr.responseText);
+              alert(response.message)
+            } else {
+              alert("회원가입에 실패했습니다. 다시 시도해 주세요.")
+            }
+          }
         });
       }
     </script>
