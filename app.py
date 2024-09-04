@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import os
 import secrets
 from functools import wraps
+import datetime as dt
 
 app = Flask(__name__)
 SECRET_KEY = "abcd"
@@ -183,7 +184,7 @@ def reserve_table(current_user):
 
     collection_table.update_one(
         {"tableNum": int(tableNum_receive)},
-        {"$set": {"occupied": True, "user_name": current_user["username"]}},
+        {"$set": {"occupied": True, "user_name": current_user["username"], "time": dt.datetime.now()}},
     )
 
     collection_user.update_one(
