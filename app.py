@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import os
 import secrets
 from functools import wraps
+from apscheduler.schedulers.background import BackgroundScheduler
 
 app = Flask(__name__)
 SECRET_KEY = "abcd"
@@ -15,6 +16,9 @@ client = MongoClient(mongo_uri)
 db = client["mydatabase"]
 collection_user = db["user"]
 collection_table = db["table"]
+
+scheduler = BackgroundScheduler()
+scheduler.start()
 
 # tables = [
 #     {"tableNum": 1, "user_name": "user_1", "occupied": False},
@@ -56,6 +60,25 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
 
     return decorated
+
+
+def auto_checkout(table_num):
+    table = collection_table.find_one({"tableNum": table_num})
+    userName = table.get("user_name")
+
+    collection_table.update_one(
+        {"tableNum": table_num},
+        {"$set": {"user_name": None, "occupied": False, "time": None}},
+    )
+
+    collection_user.update_one({"username": userName}, {"$set": {"is_reserved": 0}})
+
+
+def logout_all_users():
+    collection_user.update_many({}, {"$set": {"is_reserved": 0}})
+    collection_table.update_many(
+        {}, {"$set": {"user_name": None, "occupied": False, "time": None}}
+    )
 
 
 @app.route("/")
@@ -173,14 +196,15 @@ def reserve_table(current_user):
         return jsonify({"result": "fail", "message": "이미 예약하셨습니다."}), 400
 
     tableNum_receive = request.form["tableNum_give"]
-
+    time = datetime.now() + timedelta(minutes=1)
+    tableNum = int(tableNum_receive)
     collection_table.update_one(
         {"tableNum": int(tableNum_receive)},
         {
             "$set": {
                 "occupied": True,
                 "user_name": current_user["username"],
-                "time": datetime.now() + timedelta(hours=2),
+                "time": time,
             }
         },
     )
@@ -188,6 +212,8 @@ def reserve_table(current_user):
     collection_user.update_one(
         {"_id": current_user["_id"]}, {"$set": {"is_reserved": tableNum_receive}}
     )
+    scheduler.add_job(auto_checkout, "date", run_date=time, args=[tableNum])
+    scheduler.add_job(logout_all_users, "cron", hour=19, minute=0)
 
     return jsonify({"result": "success", "message": "예약이 완료되었습니다."})
 
