@@ -50,7 +50,7 @@ def token_required(f):
             return jsonify({"result": "failure", "message": "Token is missing"}), 401
         try:
             data = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-            current_user = collection_user.find_one({"username": data["id"]})
+            current_user = collection_user.find_one({"username": data["username"]})
         except:
             return jsonify({"result": "failure", "message": "Token is invalid!"}), 401
         return f(current_user, *args, **kwargs)
