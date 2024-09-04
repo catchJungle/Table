@@ -20,29 +20,6 @@ collection_table = db["table"]
 scheduler = BackgroundScheduler()
 scheduler.start()
 
-# tables = [
-#     {"tableNum": 1, "user_name": "user_1", "occupied": False},
-#     {"tableNum": 2, "user_name": "user_2", "occupied": False},
-#     {"tableNum": 3, "user_name": "user_3", "occupied": False},
-#     {"tableNum": 4, "user_name": "user_4", "occupied": False},
-#     {"tableNum": 5, "user_name": "user_5", "occupied": False},
-#     {"tableNum": 6, "user_name": "user_6", "occupied": False},
-#     {"tableNum": 7, "user_name": "user_7", "occupied": False},
-#     {"tableNum": 8, "user_name": "user_8", "occupied": False},
-#     {"tableNum": 9, "user_name": "user_9", "occupied": False},
-#     {"tableNum": 10, "user_name": "user_10", "occupied": False},
-#     {"tableNum": 11, "user_name": "user_11", "occupied": False},
-#     {"tableNum": 12, "user_name": "user_12", "occupied": False},
-#     {"tableNum": 13, "user_name": "user_13", "occupied": False},
-#     {"tableNum": 14, "user_name": "user_14", "occupied": False},
-#     {"tableNum": 15, "user_name": "user_15", "occupied": False},
-#     {"tableNum": 16, "user_name": "user_16", "occupied": False},
-#     {"tableNum": 17, "user_name": "user_17", "occupied": False},
-#     {"tableNum": 18, "user_name": "user_18", "occupied": False},
-# ]
-
-# collection_table.insert_many(tables)
-
 
 def token_required(f):
     @wraps(f)
