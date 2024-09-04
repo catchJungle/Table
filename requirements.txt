@@ -9,7 +9,7 @@ click==8.1.7                # 명령줄 인터페이스 생성 도구
 colorama==0.4.4             # 콘솔 출력 색상 처리
 cryptography==3.4.8         # 암호화 관련 기능 (JWT 생성 시 사용)
 dnspython==2.6.1            # DNS 처리 라이브러리 (MongoDB의 DNS 연결 시 필요할 수 있음)
-idna==3.3                   # 국제화 도메인 이름 지원
+idna==2.10                   # 국제화 도메인 이름 지원
 itsdangerous==2.2.0         # 안전한 데이터 서명 (Flask에서 사용)
 Jinja2==3.1.4               # Flask 템플릿 엔진
 MarkupSafe==2.1.5           # 템플릿에서 안전한 HTML 처리
