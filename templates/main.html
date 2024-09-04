@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>휴게실 좌석 예매</title>
+    <link rel="icon" href="{{ url_for('static', filename='favicon_krafton.ico') }}" type="image/x-icon">
+    <title>캐치 라운지!</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -76,7 +77,7 @@
                         const statusElement = $("#status");
                         statusElement.html(`
                             <h3 class="text-lg font-bold">예약 정보</h3>
-                            <p>사용자 이름: ${user.username}</p>
+                            <p>아이디: ${user.username}</p>
                             <p>전화번호: ${user.phone}</p>
                             <p>예약 좌석: ${user.is_reserved}</p>
                         `);

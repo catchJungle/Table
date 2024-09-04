@@ -1,0 +1,23 @@
+{
+  "name": "table",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "devDependencies": {
+    "tailwindcss": "^3.4.10"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tailwindcss -i ./src/input.css -o ./templates/style.css --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/catchJungle/Table.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/catchJungle/Table/issues"
+  },
+  "homepage": "https://github.com/catchJungle/Table#readme"
+}
