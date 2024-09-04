@@ -136,7 +136,7 @@ def sign_up():
     username_receive = request.form["username_give"]
     password_receive = request.form["password_give"]
     phone_receive = request.form["phone_give"]
-    is_reserved = request.form.get("is_reserved").lower() == "true"
+    is_reserved = 0
 
     password_hash = hashlib.sha256(password_receive.encode("utf-8")).hexdigest()
 
@@ -240,8 +240,9 @@ def cancel_table(current_user):
 @app.route("/time", methods=["GET"])
 def timeRecall():
     tableNum = request.args.get("tableNum")
+    if tableNum is None:
+        return jsonify({"result": "fail", "message": "tableNum is missing"}), 400
     table = collection_table.find_one({"tableNum": int(tableNum)})
-
     savedTime = table.get("time")
     user = table.get("user_name")
 
@@ -263,23 +264,3 @@ def timeRecall():
 
 if __name__ == "__main__":
     app.run("0.0.0.0", port=5001, debug=True)
-
-
-# @app.route("/table/info", methods=["GET"])
-# def table_info():
-#     tableNum = request.args.get("tableNum")
-#     if not is_occupied(tableNum):
-#         return jsonify({"result": "failure", "message": "taken seat info request"})
-
-#     table = collection_table.find_one({"tableNum": tableNum})
-#     return jsonify({"result": "success", "table": table})
-
-
-# @app.route("/table", methods=['POST'])
-# def request_table():
-#    tableNum = request.args.get("tableNum")
-#    if is_occupied(tableNum):
-#        return jsonify({'result':'failure', 'message':'already taken seat'})
-#
-#    table = collection_table.find_one({"tableNum": tableNum})
-#    # jwt 를 받아와서 유저 정보 table collection에 입력
