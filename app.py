@@ -107,42 +107,6 @@ def table_info():
     return jsonify({'result':'success', 'table':table})
 
 
-#@app.route("/table", methods=['POST'])
-#def request_table():
-#    tableNum = request.args.get("tableNum")
-#    if is_occupied(tableNum):
-#        return jsonify({'result':'failure', 'message':'already taken seat'})
-#    
-#    table = collection_table.find_one({"tableNum": tableNum})
-#    # jwt 를 받아와서 유저 정보 table collection에 입력
-
-
-def token_required(f):
-    @wraps(f)
-    def decorated(*args, **kwargs):
-        token = None
-
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split(" ")[1]
-
-        if not token:
-            return jsonify({'result':'failure', 'message': 'Token is missing'}), 401
-        
-        try:
-            data = jwt.decode(token, "secret", algorithms=["HS256"])
-            current_user = collection_user.find_one({"username": data["id"]})
-        except:
-            return jsonify({'result':'failure', 'message': 'Token is invalid!'}), 401
-        
-        return f(current_user, *args, **kwargs)
-    
-    return decorated
-
-@app.route("/button", methods=["GET"])
-@token_required
-def test_button(current_user):
-    return jsonify({'result':'success', 'message':'This is a protected route .', 'user': current_user["username"]})
-
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", port=5001, debug=True)
+    app.run("0.0.0.0", port=5000, debug=True)

@@ -44,33 +44,5 @@
         <button class="button action-button">Default</button>
       </div>
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-      function token_test() {
-        let token = localStorage.getItem("token");
-
-        $.ajax({
-          type: "GET",
-          url: "/button",
-          headers: {
-            "Authorization": `Bearer ${token}`,
-          },
-          success: function (response) {
-            console.log(response);
-          },
-          error: function() {
-            alert("인증 실패");
-          },
-        });
-      }
-
-      $(document).ready(function() {
-        $(".action-button").on("click", function() {
-          token_test();
-        });
-      });
-      
-    </script>
   </body>
 </html>
