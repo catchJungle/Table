@@ -115,6 +115,11 @@ def sign_up():
     phone_receive = request.form["phone_give"]
     is_reserved = 0
 
+    existing_user = collection_user.find_one({"username":username_receive})
+
+    if existing_user:
+        return jsonify({"result":"fail", "message" : "username already in use"})
+
     password_hash = hashlib.sha256(password_receive.encode("utf-8")).hexdigest()
 
     doc = {
