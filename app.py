@@ -196,7 +196,7 @@ def reserve_table(current_user):
         return jsonify({"result": "fail", "message": "이미 예약하셨습니다."}), 400
 
     tableNum_receive = request.form["tableNum_give"]
-    time = datetime.now() + timedelta(minutes=1)
+    time = datetime.now() + timedelta(seconds=15)
     tableNum = int(tableNum_receive)
     collection_table.update_one(
         {"tableNum": int(tableNum_receive)},
