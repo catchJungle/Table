@@ -142,11 +142,71 @@ def logout():
 #     return seat.get("occupied")
 
 
+@app.route("/person", methods=["GET"])
+@token_required
+def person_info(current_user):
+
+    user_data = {
+        "username": current_user.get("username"),
+        "phone": current_user.get("phone"),
+        "is_reserved": current_user.get("is_reserved"),
+    }
+
+    if int(user_data.get("is_reserved", 0)) > 0:
+        return jsonify({"result": "success", "user_data": user_data})
+    return jsonify({"result": "fail"})
+
+
 @app.route("/room", methods=["GET"])
 def room_info():
     tables = list(collection_table.find({}, {"_id": 0}))
 
     return jsonify({"result": "success", "tables": tables})
+
+
+@app.route("/reserve", methods=["POST"])
+@token_required
+def reserve_table(current_user):
+
+    is_reserved = int(current_user.get("is_reserved", "0"))
+    if is_reserved > 0:
+        return jsonify({"result": "fail", "message": "이미 예약하셨습니다."}), 400
+
+    tableNum_receive = request.form["tableNum_give"]
+
+    collection_table.update_one(
+        {"tableNum": int(tableNum_receive)},
+        {"$set": {"occupied": True, "user_name": current_user["username"]}},
+    )
+
+    collection_user.update_one(
+        {"_id": current_user["_id"]}, {"$set": {"is_reserved": tableNum_receive}}
+    )
+
+    return jsonify({"result": "success", "message": "예약이 완료되었습니다."})
+
+
+@app.route("/cancel", methods=["POST"])
+@token_required
+def cancel_table(current_user):
+    is_reserved = int(current_user.get("is_reserved", "0"))
+
+    if is_reserved > 0:  # 예약되어있는 경우 DB에서 예약을 False로 바꾼다.
+        collection_table.update_one(
+            {"tableNum": is_reserved},
+            {"$set": {"occupied": False, "user_name": "None"}},
+        )
+        collection_user.update_one(
+            {"_id": current_user["_id"]}, {"$set": {"is_reserved": 0}}
+        )
+    else:
+        return jsonify({"result": "fail", "message": "예약된 내용이 없습니다."})
+
+    return jsonify({"result": "success"})
+
+
+if __name__ == "__main__":
+    app.run("0.0.0.0", port=5000, debug=True)
 
 
 # @app.route("/table/info", methods=["GET"])
@@ -167,31 +227,3 @@ def room_info():
 #
 #    table = collection_table.find_one({"tableNum": tableNum})
 #    # jwt 를 받아와서 유저 정보 table collection에 입력
-
-
-@app.route("/reserve", methods=["POST"])
-@token_required
-def reserve_table(current_user):
-    # token = request.headers.get("Authorization")
-    # payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-    # user_info = collection_user.find_one({"username": payload["username"]})
-    print(current_user)
-    if current_user.get("is_reserved", False):
-        return jsonify({"result": "fail", "message": "이미 예약하셨습니다."}), 400
-
-    tableNum_receive = request.form["tableNum_give"]
-
-    collection_table.update_one(
-        {"tableNum": int(tableNum_receive)},
-        {"$set": {"occupied": True, "user_name": current_user["username"]}},
-    )
-
-    collection_user.update_one(
-        {"_id": current_user["_id"]}, {"$set": {"is_reserved": True}}
-    )
-
-    return jsonify({"result": "success", "message": "예약이 완료되었습니다."})
-
-
-if __name__ == "__main__":
-    app.run("0.0.0.0", port=5000, debug=True)

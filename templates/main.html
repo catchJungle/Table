@@ -61,13 +61,17 @@
           success: function (response) {
             if (response["result"] == "success") {
               const tables = response["tables"];
+              //console.log(tables);
               $(".upper button").each(function (index) {
                 const table = tables[index];
+
                 $(this).text(`${table.tableNum}`);
                 if (table.occupied) {
                   $(this).addClass("is-danger");
+                  $(this).attr("title", `Reserved by: ${table["user_name"]}`);
                 } else {
                   $(this).addClass("is-dark");
+                  $(this).attr("title", "Available");
                 }
               });
 
@@ -77,13 +81,43 @@
                 $(this).text(`${table.tableNum}`);
                 if (table.occupied) {
                   $(this).addClass("is-danger");
+                  $(this).attr("title", `Reserved by: ${table["user_name"]}`);
                 } else {
                   $(this).addClass("is-dark");
+                  $(this).attr("title", "Available");
                 }
               });
             } else {
               console.log("Table data load is failed");
             }
+          },
+        });
+      }
+
+      function show_status() {
+        const token = getCookie("mytoken");
+
+        $.ajax({
+          type: "GET",
+          url: "/person",
+          headers: { Authorization: `Bearer ${token}` },
+          data: {},
+          success: function (response) {
+            if (response.result === "success") {
+              const user = response.user_data;
+              const statusElement = $("#status");
+              statusElement.html(`
+                <h3>예약 정보</h3>
+                <p>사용자 이름: ${user.username}</p>
+                <p>전화번호: ${user.phone}</p>
+                <p>예약 좌석: ${user.is_reserved}</p>
+              `);
+            } else {
+              $("#status").html("<p>예약 정보가 없습니다.</p>");
+            }
+          },
+          error: function (xhr) {
+            console.error("Error:", xhr.status, xhr.statusText);
           },
         });
       }
@@ -143,6 +177,32 @@
         }
       }
 
+      function leaveTable() {
+        const token = getCookie("mytoken");
+        console.log(token);
+
+        $.ajax({
+          type: "POST",
+          url: "/cancel", // 백엔드에서 예약 요청을 처리할 엔드포인트
+          headers: { Authorization: `Bearer ${token}` },
+          data: {},
+          success: function (response) {
+            if (response["result"] === "success") {
+              alert("자리가 취소되었습니다.");
+              window.location.reload();
+            }
+          },
+          error: function (xhr) {
+            if (xhr.status === 400) {
+              alert(xhr.responseJSON.message);
+            } else {
+              alert("예약에 실패했습니다. 다시 시도해주세요.");
+              window.location.reload();
+            }
+          },
+        });
+      }
+
       function logout() {
         $.ajax({
           type: "POST",
@@ -163,6 +223,7 @@
 
       $(document).ready(function () {
         show_tables();
+        show_status();
       });
     </script>
   </head>
@@ -279,11 +340,19 @@
         class="button is-primary"
         onclick="completeReservation()"
       >
-        Complete
+        예약완료
+      </button>
+      <button
+        id="complete-button"
+        class="button is-warning"
+        onclick="leaveTable()"
+      >
+        퇴실하기
       </button>
       <button id="logout-button" class="btn btn-danger" onclick="logout()">
         Logout
       </button>
+      <div class="status" id="status">예약 정보가 여기에 표시됩니다.</div>
     </div>
   </body>
 </html>
