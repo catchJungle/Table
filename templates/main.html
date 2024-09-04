@@ -17,6 +17,17 @@
         width: 200px;
         margin: auto;
       }
+
+      #time-display {
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 5px;
+        border-radius: 5px;
+        pointer-events: none;
+        font-size: 14px;
+        display: none;
+      }
     </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- Bootstrap-->
@@ -68,7 +79,7 @@
                 $(this).text(`${table.tableNum}`);
                 if (table.occupied) {
                   $(this).addClass("is-danger");
-                  $(this).attr("title", `Reserved by: ${table["user_name"]}`);
+                  //$(this).attr("title", `Reserved by: ${table["user_name"]}`);
                 } else {
                   $(this).addClass("is-dark");
                   $(this).attr("title", "Available");
@@ -81,7 +92,7 @@
                 $(this).text(`${table.tableNum}`);
                 if (table.occupied) {
                   $(this).addClass("is-danger");
-                  $(this).attr("title", `Reserved by: ${table["user_name"]}`);
+                  //$(this).attr("title", `Reserved by: ${table["user_name"]}`);
                 } else {
                   $(this).addClass("is-dark");
                   $(this).attr("title", "Available");
@@ -226,6 +237,78 @@
         show_status();
       });
     </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+      let intervalId;
+
+      function timeRecall(button) {
+        const tableNum = $(button).data("table-num");
+        function timeCall() {
+          $.ajax({
+            type: "GET",
+            url: "/time",
+            data: {tableNum : tableNum},
+            success: function(response) {
+              if (response.result === "success") {
+                let minutes = response.time[0];
+                let seconds = response.time[1];
+                let username = response.user;
+                console.log(`${minutes}분 ${seconds}초`);
+
+                $('#time-display').text(`${username}, ${minutes}분 ${seconds}초`);
+              
+                intervalId = setInterval(function() {
+                  if (seconds === 0) {
+                    if (minutes > 0) {
+                      minutes--;
+                      seconds = 59;
+                    } else {
+                      clearInterval(intervalId);
+                      console.log('Time is up!');
+                      return;
+                    }
+                  } else {
+                    seconds --;
+                  }
+                  $('#time-display').text(`${username}, ${minutes}분 ${seconds}초`);
+                }, 1000);
+
+              } else {
+                console.log('could not load the time');
+              }
+            }
+          });
+        }
+        timeCall();
+      }
+
+      $(document).ready(function() {
+        $(".button").on("mouseenter", function(event) {
+        
+          const button = this;
+          timeRecall(button);
+
+          $('#time-display').css({
+            left: event.pageX + 15 + 'px',
+            top: event.pageY + 15 + 'px',
+            display: 'block'
+          });
+        });
+
+        $(".button").on("mousemove", function(event) {
+          $('#time-display').css({
+            left: event.pageX + 15 + 'px',
+            top: event.pageY + 15 + 'px'
+          });
+        });
+
+        $(".button").on("mouseleave", function() {
+          clearInterval(intervalId);
+          $('#time-display').hide(); 
+        });
+      });
+
+    </script>
   </head>
   <body>
     <div class="wrap">
@@ -354,5 +437,6 @@
       </button>
       <div class="status" id="status">예약 정보가 여기에 표시됩니다.</div>
     </div>
+    <div id="time-display"></div>
   </body>
 </html>

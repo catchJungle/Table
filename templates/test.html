@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .wrap {
+        width: 1000px;
+        margin: auto;
+      }
+      .upper {
+        width: 500px;
+        margin: auto;
+      }
+      .downer {
+        width: 200px;
+        margin: auto;
+      }
+
+      #time-display {
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0.7);
+        color: #fff;
+        padding: 5px;
+        border-radius: 5px;
+        pointer-events: none;
+        font-size: 14px;
+        display: none;
+      }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Bootstrap-->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://getbootstrap.com/docs/5.3/assets/css/docs.css"
+      rel="stylesheet"
+    />
+    <!--Bulma 를 포함합니다-->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
+    />
+
+    <script
+      type="text/javascript"
+      src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"
+    ></script>
+    <script>
+      let chosenTable;
+      let selectedButton = null;
+
+      function getCookie(cookieName) {
+        var cookieValue = null;
+        if (document.cookie) {
+          var array = document.cookie.split(escape(cookieName) + "=");
+          if (array.length >= 2) {
+            var arraySub = array[1].split(";");
+            cookieValue = unescape(arraySub[0]);
+          }
+        }
+        return cookieValue;
+      }
+      function show_tables() {
+        $.ajax({
+          type: "GET",
+          url: "/room",
+          data: {},
+          success: function (response) {
+            if (response["result"] == "success") {
+              const tables = response["tables"];
+              //console.log(tables);
+              $(".upper button").each(function (index) {
+                const table = tables[index];
+
+                $(this).text(`${table.tableNum}`);
+                if (table.occupied) {
+                  $(this).addClass("is-danger");
+                  $(this).attr("title", `Reserved by: ${table["user_name"]}`);
+                } else {
+                  $(this).addClass("is-dark");
+                  $(this).attr("title", "Available");
+                }
+              });
+
+              // 하위 6개의 테이블 번호를 downer div의 버튼에 매칭
+              $(".downer button").each(function (index) {
+                const table = tables[index + 12]; // 12번째 이후 테이블 가져오기
+                $(this).text(`${table.tableNum}`);
+                if (table.occupied) {
+                  $(this).addClass("is-danger");
+                  $(this).attr("title", `Reserved by: ${table["user_name"]}`);
+                } else {
+                  $(this).addClass("is-dark");
+                  $(this).attr("title", "Available");
+                }
+              });
+            } else {
+              console.log("Table data load is failed");
+            }
+          },
+        });
+      }
+
+      function show_status() {
+        const token = getCookie("mytoken");
+
+        $.ajax({
+          type: "GET",
+          url: "/person",
+          headers: { Authorization: `Bearer ${token}` },
+          data: {},
+          success: function (response) {
+            if (response.result === "success") {
+              const user = response.user_data;
+              const statusElement = $("#status");
+              statusElement.html(`
+                <h3>예약 정보</h3>
+                <p>사용자 이름: ${user.username}</p>
+                <p>전화번호: ${user.phone}</p>
+                <p>예약 좌석: ${user.is_reserved}</p>
+              `);
+            } else {
+              $("#status").html("<p>예약 정보가 없습니다.</p>");
+            }
+          },
+          error: function (xhr) {
+            console.error("Error:", xhr.status, xhr.statusText);
+          },
+        });
+      }
+
+      function clickedTable(button) {
+        if ($(button).hasClass("is-danger")) {
+          // 이미 예약된 버튼(빨간색)을 클릭한 경우
+          alert("예약할 수 없습니다. 다른 테이블을 선택해 주세요.");
+          return; // 선택을 취소하고 함수 종료
+        }
+        if (selectedButton) {
+          // 이전에 선택된 버튼이 있으면 해당 버튼의 색을 원래대로 돌립니다.
+          $(selectedButton).removeClass("is-primary");
+        }
+
+        if (selectedButton === button) {
+          // 동일한 버튼을 클릭했을 경우 선택을 취소합니다.
+          selectedButton = null;
+          chosenTable = null;
+        } else {
+          // 새로운 버튼이 클릭된 경우
+          selectedButton = button;
+          $(button).addClass("is-primary");
+          chosenTable = $(button).attr("data-table-num"); // 클릭된 버튼의 테이블 번호를 저장
+          console.log(`Chosen table: ${chosenTable}`); // 콘솔에 선택된 테이블 번호 출력
+        }
+      }
+
+      function completeReservation() {
+        const token = getCookie("mytoken");
+        console.log(token);
+        if (chosenTable !== null) {
+          $.ajax({
+            type: "POST",
+            url: "/reserve", // 백엔드에서 예약 요청을 처리할 엔드포인트
+            headers: { Authorization: `Bearer ${token}` },
+            data: { tableNum_give: chosenTable },
+            success: function (response) {
+              if (response["result"] === "success") {
+                alert(`테이블 ${chosenTable}이 예약되었습니다!`);
+                window.location.reload();
+              }
+              chosenTable = null;
+            },
+            error: function (xhr) {
+              if (xhr.status === 400) {
+                alert(xhr.responseJSON.message);
+                window.location.reload();
+              } else {
+                alert("예약에 실패했습니다. 다시 시도해주세요.");
+                window.location.reload();
+              }
+            },
+          });
+        } else {
+          alert("테이블을 선택해주세요");
+        }
+      }
+
+      function leaveTable() {
+        const token = getCookie("mytoken");
+        console.log(token);
+
+        $.ajax({
+          type: "POST",
+          url: "/cancel", // 백엔드에서 예약 요청을 처리할 엔드포인트
+          headers: { Authorization: `Bearer ${token}` },
+          data: {},
+          success: function (response) {
+            if (response["result"] === "success") {
+              alert("자리가 취소되었습니다.");
+              window.location.reload();
+            }
+          },
+          error: function (xhr) {
+            if (xhr.status === 400) {
+              alert(xhr.responseJSON.message);
+            } else {
+              alert("예약에 실패했습니다. 다시 시도해주세요.");
+              window.location.reload();
+            }
+          },
+        });
+      }
+
+      function logout() {
+        $.ajax({
+          type: "POST",
+          url: "/logout",
+          success: function (response) {
+            if (response.result === "success") {
+              // 로그아웃 성공 시 로그인 페이지로 리다이렉트
+              window.location.href = "/";
+            } else {
+              alert("Logout failed!");
+            }
+          },
+          error: function () {
+            alert("An error occurred during logout.");
+          },
+        });
+      }
+
+      $(document).ready(function () {
+        show_tables();
+        show_status();
+      });
+    </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+      let intervalId;
+
+      function timeRecall(button) {
+        const tableNum = $(button).data("table-num");
+        function timeCall() {
+          $.ajax({
+            type: "GET",
+            url: "/time",
+            data: {tableNum : tableNum},
+            success: function(response) {
+              if (response.result === "success") {
+                let minutes = response.time[0];
+                let seconds = response.time[1];
+                console.log(`${minutes}분 ${seconds}초`);
+
+                $('#time-display').text(`${minutes}분 ${seconds}초`);
+              
+                intervalId = setInterval(function() {
+                  if (seconds === 0) {
+                    if (minutes > 0) {
+                      minutes--;
+                      seconds = 59;
+                    } else {
+                      clearInterval(intervalId);
+                      console.log('Time is up!');
+                      return;
+                    }
+                  } else {
+                    seconds --;
+                  }
+                  $('#time-display').text(`${minutes}분 ${seconds}초`);
+                }, 1000);
+
+              } else {
+                console.log('could not load the time');
+              }
+            }
+          });
+        }
+        timeCall();
+      }
+
+      $(document).ready(function() {
+        $(".button").on("mouseenter", function(event) {
+        
+          const button = this;
+          timeRecall(button);
+
+          $('#time-display').css({
+            left: event.pageX + 15 + 'px',
+            top: event.pageY + 15 + 'px',
+            display: 'block'
+          });
+        });
+
+        $(".button").on("mousemove", function(event) {
+          $('#time-display').css({
+            left: event.pageX + 15 + 'px',
+            top: event.pageY + 15 + 'px'
+          });
+        });
+
+        $(".button").on("mouseleave", function() {
+          clearInterval(intervalId);
+          $('#time-display').hide(); 
+        });
+      });
+
+    </script>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="upper">
+        <button
+          class="button is-small"
+          data-table-num="1"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="2"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="3"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="4"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="5"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="6"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="7"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="8"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="9"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="10"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="11"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+        <button
+          class="button is-small"
+          data-table-num="12"
+          onclick="clickedTable(this)"
+        >
+          Small
+        </button>
+      </div>
+      <div class="downer">
+        <button class="button" data-table-num="13" onclick="clickedTable(this)">
+          Default
+        </button>
+        <button class="button" data-table-num="14" onclick="clickedTable(this)">
+          Default
+        </button>
+        <button class="button" data-table-num="15" onclick="clickedTable(this)">
+          Default
+        </button>
+        <button class="button" data-table-num="16" onclick="clickedTable(this)">
+          Default
+        </button>
+        <button class="button" data-table-num="17" onclick="clickedTable(this)">
+          Default
+        </button>
+        <button class="button" data-table-num="18" onclick="clickedTable(this)">
+          Default
+        </button>
+      </div>
+      <button
+        id="complete-button"
+        class="button is-primary"
+        onclick="completeReservation()"
+      >
+        예약완료
+      </button>
+      <button
+        id="complete-button"
+        class="button is-warning"
+        onclick="leaveTable()"
+      >
+        퇴실하기
+      </button>
+      <button id="logout-button" class="btn btn-danger" onclick="logout()">
+        Logout
+      </button>
+      <div class="status" id="status">예약 정보가 여기에 표시됩니다.</div>
+    </div>
+    <div id="time-display"></div>
+  </body>
+</html>

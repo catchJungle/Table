@@ -176,7 +176,7 @@ def reserve_table(current_user):
 
     collection_table.update_one(
         {"tableNum": int(tableNum_receive)},
-        {"$set": {"occupied": True, "user_name": current_user["username"]}},
+        {"$set": {"occupied": True, "user_name": current_user["username"], "time": datetime.now() + timedelta(hours=2)}},
     )
 
     collection_user.update_one(
@@ -204,9 +204,36 @@ def cancel_table(current_user):
 
     return jsonify({"result": "success"})
 
+@app.route("/time", methods=["GET"])
+def timeRecall():
+    tableNum = request.args.get("tableNum")
+    table = collection_table.find_one({"tableNum": int(tableNum)})
+
+    savedTime = table.get("time")
+    user = table.get("user_name")
+
+    if savedTime is None:
+        return jsonify({"result":"failure", "message":"no time saved"})
+    
+    currentTime = datetime.now()
+    timeDifference = savedTime-currentTime
+    total_seconds = int(timeDifference.total_seconds())
+
+    if total_seconds < 0:
+        return jsonify({"result": "failure", "message":"no time saved"})
+
+    minutes = total_seconds // 60
+    seconds = total_seconds % 60
+
+    return jsonify({
+        "result":"success",
+        "time": [minutes, seconds],
+        "user": user
+    })
+
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", port=5000, debug=True)
+    app.run("0.0.0.0", port=5001, debug=True)
 
 
 # @app.route("/table/info", methods=["GET"])
