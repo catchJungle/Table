@@ -8,8 +8,11 @@ import os
 import secrets
 from functools import wraps
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
+socketio = SocketIO(app)
+
 SECRET_KEY = "abcd"
 mongo_uri = os.getenv("MONGO_URI", "mongodb://localhost:27017/mydatabase")
 client = MongoClient(mongo_uri)
@@ -38,6 +41,9 @@ def token_required(f):
     return decorated
 
 
+def emit_db_update():
+    socketio.emit('db_update', {'data':'Database update'})
+
 def auto_checkout(table_num):
     table = collection_table.find_one({"tableNum": table_num})
     userName = table.get("user_name")
@@ -48,6 +54,8 @@ def auto_checkout(table_num):
     )
 
     collection_user.update_one({"username": userName}, {"$set": {"is_reserved": 0}})
+    emit_db_update()
+
 
 
 def logout_all_users():
@@ -55,8 +63,10 @@ def logout_all_users():
     collection_table.update_many(
         {}, {"$set": {"user_name": None, "occupied": False, "time": None}}
     )
+    emit_db_update()
 
 scheduler.add_job(logout_all_users, "cron", hour=2, minute=0)
+
 
 @app.route("/")
 def home():
@@ -195,7 +205,7 @@ def reserve_table(current_user):
         {"_id": current_user["_id"]}, {"$set": {"is_reserved": tableNum_receive}}
     )
     scheduler.add_job(auto_checkout, "date", run_date=time, args=[tableNum])
-
+    emit_db_update()
     return jsonify({"result": "success", "message": "예약이 완료되었습니다."})
 
 
@@ -212,6 +222,7 @@ def cancel_table(current_user):
         collection_user.update_one(
             {"_id": current_user["_id"]}, {"$set": {"is_reserved": 0}}
         )
+        emit_db_update()
     else:
         return jsonify({"result": "fail", "message": "예약된 내용이 없습니다."})
 
@@ -244,4 +255,4 @@ def timeRecall():
 
 
 if __name__ == "__main__":
-    app.run("0.0.0.0", port=5001, debug=True)
+    socketio.run(app.run("0.0.0.0", port=5001, debug=True))
