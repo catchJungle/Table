@@ -20,7 +20,6 @@ collection_table = db["table"]
 scheduler = BackgroundScheduler()
 scheduler.start()
 
-
 def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -57,6 +56,7 @@ def logout_all_users():
         {}, {"$set": {"user_name": None, "occupied": False, "time": None}}
     )
 
+scheduler.add_job(logout_all_users, "cron", hour=2, minute=0)
 
 @app.route("/")
 def home():
@@ -195,7 +195,6 @@ def reserve_table(current_user):
         {"_id": current_user["_id"]}, {"$set": {"is_reserved": tableNum_receive}}
     )
     scheduler.add_job(auto_checkout, "date", run_date=time, args=[tableNum])
-    scheduler.add_job(logout_all_users, "cron", hour=19, minute=0)
 
     return jsonify({"result": "success", "message": "예약이 완료되었습니다."})
 
