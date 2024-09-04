@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>로그인 페이지</title>
+    <!--Bulma 를 포함합니다-->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css"
+    />
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -56,11 +61,10 @@
       $(document).ready(function () {});
 
       function sign_in() {
+        event.preventDefault();
         let username = $("#username").val();
         let password = $("#password").val();
 
-        console.log(username);
-        console.log(password);
         $.ajax({
           type: "POST",
           url: "/sign_in",
@@ -71,9 +75,8 @@
           success: function (response) {
             if (response["result"] == "success") {
               $.cookie("mytoken", response["token"], { path: "/" });
-              localStorage.setItem("mytoken", response["token"]);
               alert("로그인 성공");
-              window.location.href = "main";
+              window.location.href = "/";
             } else {
               alert("로그인 실패");
             }
@@ -98,8 +101,10 @@
           name="password"
           placeholder="비밀번호"
         />
-        <a type="submit" onclick="sign_in()">로그인</a>
-        <a href="{{ url_for('signup') }}">회원가입</a>
+        <a class="button is-primary" onclick="sign_in()">로그인</a>
+        <a class="button is-link" href="{{ url_for('show_signup') }}"
+          >회원가입</a
+        >
       </form>
     </div>
   </body>

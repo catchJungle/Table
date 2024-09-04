@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
+    <style>
+      .wrap {
+        width: 1000px;
+        margin: auto;
+      }
+      .upper {
+        width: 500px;
+        margin: auto;
+      }
+      .downer {
+        width: 200px;
+        margin: auto;
+      }
+    </style>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- Bootstrap-->
     <link
@@ -26,11 +40,18 @@
     ></script>
     <script>
       let chosenTable;
-      function getCookie(name) {
-        let value = `; ${document.cookie}`;
-        console.log(value);
-        let parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(";").shift();
+      let selectedButton = null;
+
+      function getCookie(cookieName) {
+        var cookieValue = null;
+        if (document.cookie) {
+          var array = document.cookie.split(escape(cookieName) + "=");
+          if (array.length >= 2) {
+            var arraySub = array[1].split(";");
+            cookieValue = unescape(arraySub[0]);
+          }
+        }
+        return cookieValue;
       }
       function show_tables() {
         $.ajax({
@@ -44,7 +65,7 @@
                 const table = tables[index];
                 $(this).text(`${table.tableNum}`);
                 if (table.occupied) {
-                  $(this).addClass("is-success");
+                  $(this).addClass("is-danger");
                 } else {
                   $(this).addClass("is-dark");
                 }
@@ -55,7 +76,7 @@
                 const table = tables[index + 12]; // 12번째 이후 테이블 가져오기
                 $(this).text(`${table.tableNum}`);
                 if (table.occupied) {
-                  $(this).addClass("is-success");
+                  $(this).addClass("is-danger");
                 } else {
                   $(this).addClass("is-dark");
                 }
@@ -68,36 +89,76 @@
       }
 
       function clickedTable(button) {
-        chosenTable = $(button).attr("data-table-num"); // 클릭된 버튼의 테이블 번호를 저장
-        console.log(`Chosen table: ${chosenTable}`); // 콘솔에 선택된 테이블 번호 출력
+        if ($(button).hasClass("is-danger")) {
+          // 이미 예약된 버튼(빨간색)을 클릭한 경우
+          alert("예약할 수 없습니다. 다른 테이블을 선택해 주세요.");
+          return; // 선택을 취소하고 함수 종료
+        }
+        if (selectedButton) {
+          // 이전에 선택된 버튼이 있으면 해당 버튼의 색을 원래대로 돌립니다.
+          $(selectedButton).removeClass("is-primary");
+        }
+
+        if (selectedButton === button) {
+          // 동일한 버튼을 클릭했을 경우 선택을 취소합니다.
+          selectedButton = null;
+          chosenTable = null;
+        } else {
+          // 새로운 버튼이 클릭된 경우
+          selectedButton = button;
+          $(button).addClass("is-primary");
+          chosenTable = $(button).attr("data-table-num"); // 클릭된 버튼의 테이블 번호를 저장
+          console.log(`Chosen table: ${chosenTable}`); // 콘솔에 선택된 테이블 번호 출력
+        }
       }
 
       function completeReservation() {
-        const token = getCookie("myToken");
-        let test = `Bearer ${token}`;
+        const token = getCookie("mytoken");
         console.log(token);
         if (chosenTable !== null) {
           $.ajax({
             type: "POST",
             url: "/reserve", // 백엔드에서 예약 요청을 처리할 엔드포인트
-            headers: { Authorization: test },
+            headers: { Authorization: `Bearer ${token}` },
             data: { tableNum_give: chosenTable },
             success: function (response) {
               if (response["result"] === "success") {
-                alert(`Table ${chosenTable} reserved successfully!`);
-              } else {
-                alert("Reservation failed!");
+                alert(`테이블 ${chosenTable}이 예약되었습니다!`);
+                window.location.reload();
               }
-              // 선택된 테이블 초기화
               chosenTable = null;
             },
-            error: function () {
-              alert("Error occurred while reserving the table.");
+            error: function (xhr) {
+              if (xhr.status === 400) {
+                alert(xhr.responseJSON.message);
+                window.location.reload();
+              } else {
+                alert("예약에 실패했습니다. 다시 시도해주세요.");
+                window.location.reload();
+              }
             },
           });
         } else {
-          alert("No table selected.");
+          alert("테이블을 선택해주세요");
         }
+      }
+
+      function logout() {
+        $.ajax({
+          type: "POST",
+          url: "/logout",
+          success: function (response) {
+            if (response.result === "success") {
+              // 로그아웃 성공 시 로그인 페이지로 리다이렉트
+              window.location.href = "/";
+            } else {
+              alert("Logout failed!");
+            }
+          },
+          error: function () {
+            alert("An error occurred during logout.");
+          },
+        });
       }
 
       $(document).ready(function () {
@@ -219,6 +280,9 @@
         onclick="completeReservation()"
       >
         Complete
+      </button>
+      <button id="logout-button" class="btn btn-danger" onclick="logout()">
+        Logout
       </button>
     </div>
   </body>
