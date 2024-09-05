@@ -278,6 +278,11 @@
     </script>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col items-center py-10">
+    <nav class="w-full bg-white shadow-md py-4 px-6 flex items-center fixed top-0 left-0">
+        <a href="/" class="flex items-center">
+            <img src="{{ url_for('static', filename='krafton_basic.jpg') }}" alt="Logo" class="h-10">
+        </a>
+    </nav>
     <div class="wrap w-full max-w-screen-lg p-4">
         <!-- Upper Table Buttons -->
         <div class="upper flex flex-wrap justify-center gap-2 md:gap-4 mb-10">
