@@ -65,7 +65,7 @@ def logout_all_users():
     )
     emit_db_update()
 
-scheduler.add_job(logout_all_users, "cron", hour=2, minute=0)
+scheduler.add_job(logout_all_users, "cron", hour=14, minute=15)
 
 
 @app.route("/")
