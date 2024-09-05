@@ -20,3 +20,7 @@ tzlocal==5.2                # 로컬 타임존 처리
 urllib3==1.26.5             # HTTP 클라이언트
 Werkzeug==3.0.3             # WSGI 유틸리티 (Flask 내부에서 사용)
 zipp==1.0.0                 # 패키징 관련
+
+Flask-SocketIO==5.3.4       # Flask용 SocketIO 확장
+python-socketio==5.7.2      # SocketIO 프로토콜 지원
+python-engineio==4.3.4      # 엔진IO 프로토콜 지원
