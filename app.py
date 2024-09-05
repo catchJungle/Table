@@ -65,8 +65,6 @@ def logout_all_users():
     )
     emit_db_update()
 
-scheduler.add_job(logout_all_users, "cron", hour=14, minute=23)
-
 
 @app.route("/")
 def home():
@@ -175,6 +173,7 @@ def person_info(current_user):
 @app.route("/room", methods=["GET"])
 def room_info():
     tables = list(collection_table.find({}, {"_id": 0}))
+    scheduler.add_job(logout_all_users, "cron", hour=14, minute=55)
 
     return jsonify({"result": "success", "tables": tables})
 
