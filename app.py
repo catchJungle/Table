@@ -65,7 +65,7 @@ def logout_all_users():
     )
     emit_db_update()
 
-scheduler.add_job(logout_all_users, "cron", hour=14, minute=15)
+scheduler.add_job(logout_all_users, "cron", hour=14, minute=23)
 
 
 @app.route("/")
@@ -188,7 +188,7 @@ def reserve_table(current_user):
         return jsonify({"result": "fail", "message": "이미 예약하셨습니다."}), 400
 
     tableNum_receive = request.form["tableNum_give"]
-    time = datetime.now() + timedelta(seconds=15)
+    time = datetime.now() + timedelta(seconds=59)
     tableNum = int(tableNum_receive)
     collection_table.update_one(
         {"tableNum": int(tableNum_receive)},
