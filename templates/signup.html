@@ -1,80 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="{{ url_for('static', filename='favicon_krafton.ico') }}" type="image/x-icon">
-    <title>회원가입</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script>
-      function sign_up() {
-        console.log("sign_up");
-        let username = $("#username").val();
-        let password = $("#password").val();
-        let phone = $("#phone").val();
-        let isReserved = false;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="{{ url_for('static', filename='favicon_krafton.ico') }}" type="image/x-icon">
+  <title>회원가입</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script>
+    function sign_up() {
+      console.log("sign_up");
+      let username = $("#username").val();
+      let password = $("#password").val();
+      let phone = $("#phone").val();
+      let isReserved = false;
 
-        console.log(username);
-        console.log(password);
-        console.log(phone);
+      console.log(username);
+      console.log(password);
+      console.log(phone);
 
-        $.ajax({
-          type: "POST",
-          url: "/sign_up/save",
-          data: {
-            username_give: username,
-            password_give: password,
-            phone_give: phone,
-            is_reserved: isReserved,
-          },
-          success: function (response) {
-            if (response.result === "success") {
-              // 회원가입 성공 시 로그인 페이지로 리다이렉트
-              alert("회원가입에 성공했습니다. 다시 로그인 해주세요.");
-              window.location.href = "/";
-            } else {
-              // 실패 시 처리
-              alert("회원가입에 실패했습니다. 다시 시도해 주세요.");
-            }
-          },
-        });
-      }
-    </script>
-  </head>
-  <body class="bg-gray-100 flex justify-center items-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm text-center">
-      <h1 class="text-2xl font-bold mb-6">회원가입</h1>
-      <form>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          placeholder="아이디"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="password"
-          id="password"
-          name="password"
-          placeholder="비밀번호"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="text"
-          id="phone"
-          name="phone"
-          placeholder="전화번호"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          type="button"
-          onclick="sign_up()"
-          class="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
-        >
-          가입완료
-        </button>
-      </form>
-    </div>
-  </body>
+      $.ajax({
+        type: "POST",
+        url: "/sign_up/save",
+        data: {
+          username_give: username,
+          password_give: password,
+          phone_give: phone,
+          is_reserved: isReserved,
+        },
+        success: function (response) {
+          if (response.result === "success") {
+            // 회원가입 성공 시 로그인 페이지로 리다이렉트
+            alert("회원가입에 성공했습니다. 다시 로그인 해주세요.");
+            window.location.href = "/";
+          } else {
+            // 실패 시 처리
+            alert("회원가입에 실패했습니다. 다시 시도해 주세요.");
+          }
+        },
+      });
+    }
+  </script>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm text-center">
+    <h1 class="text-2xl font-bold mb-6">회원가입</h1>
+    <form>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        placeholder="아이디"
+        class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="비밀번호"
+        class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <input
+        type="text"
+        id="phone"
+        name="phone"
+        placeholder="전화번호"
+        class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        type="button"
+        onclick="sign_up()"
+        class="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
+      >
+        가입완료
+      </button>
+    </form>
+  </div>
+</body>
 </html>

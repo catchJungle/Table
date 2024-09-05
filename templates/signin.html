@@ -1,73 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="{{ url_for('static', filename='favicon_krafton.ico') }}" type="image/x-icon">
-    <title>로그인 페이지</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script
-      type="text/javascript"
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"
-    ></script>
-    <script>
-      function sign_in() {
-        event.preventDefault();
-        let username = $("#username").val();
-        let password = $("#password").val();
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" href="{{ url_for('static', filename='favicon_krafton.ico') }}" type="image/x-icon">
+  <title>로그인 페이지</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script
+    type="text/javascript"
+    src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"
+  ></script>
+  <script>
+    function sign_in() {
+      event.preventDefault();
+      let username = $("#username").val();
+      let password = $("#password").val();
 
-        $.ajax({
-          type: "POST",
-          url: "/sign_in",
-          data: {
-            username_give: username,
-            password_give: password,
-          },
-          success: function (response) {
-            if (response["result"] == "success") {
-              $.cookie("mytoken", response["token"], { path: "/" });
-              alert("로그인 성공");
-              window.location.href = "/";
-            } else {
-              alert("로그인 실패");
-            }
-          },
-        });
-      }
-    </script>
-  </head>
-  <body class="bg-gray-100 flex justify-center items-center min-h-screen">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm text-center">
-      <h1 class="text-2xl font-bold mb-6">로그인</h1>
-      <form>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          placeholder="아이디"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <input
-          type="password"
-          id="password"
-          name="password"
-          placeholder="비밀번호"
-          class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          type="button"
-          onclick="sign_in()"
-          class="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
-        >
-          로그인
-        </button>
-        <a
-          class="inline-block mt-4 text-blue-500 hover:underline"
-          href="{{ url_for('show_signup') }}"
-          >회원가입</a
-        >
-      </form>
-    </div>
-  </body>
+      $.ajax({
+        type: "POST",
+        url: "/sign_in",
+        data: {
+          username_give: username,
+          password_give: password,
+        },
+        success: function (response) {
+          if (response["result"] == "success") {
+            $.cookie("mytoken", response["token"], { path: "/" });
+            alert("로그인 성공");
+            window.location.href = "/";
+          } else {
+            alert("로그인 실패");
+          }
+        },
+      });
+    }
+  </script>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen">
+  <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-sm text-center">
+    <h1 class="text-2xl font-bold mb-6">로그인</h1>
+    <form>
+      <input
+        type="text"
+        id="username"
+        name="username"
+        placeholder="아이디"
+        class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="비밀번호"
+        class="w-full px-4 py-2 mb-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+      <button
+        type="button"
+        onclick="sign_in()"
+        class="w-full py-2 px-4 bg-blue-500 text-white rounded-md hover:bg-blue-600 focus:outline-none"
+      >
+        로그인
+      </button>
+      <a
+        class="inline-block mt-4 text-blue-500 hover:underline"
+        href="{{ url_for('show_signup') }}"
+        >회원가입</a
+      >
+    </form>
+  </div>
+</body>
 </html>
