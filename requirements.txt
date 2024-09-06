@@ -24,3 +24,5 @@ zipp==1.0.0                 # 패키징 관련
 Flask-SocketIO==5.3.4       # Flask용 SocketIO 확장
 python-socketio==5.7.2      # SocketIO 프로토콜 지원
 python-engineio==4.3.4      # 엔진IO 프로토콜 지원
+
+pytz==2023.3
