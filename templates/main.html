@@ -276,7 +276,7 @@
         }
 
         $(document).ready(function () {
-            var socket = io.connect('wss://potatoscattering.shop:8080');
+            var socket = io.connect('wss://potatoscattering.shop');
 
             socket.on('db_update', function(){
                 location.reload();
