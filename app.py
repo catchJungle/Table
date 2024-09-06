@@ -9,6 +9,7 @@ import secrets
 from functools import wraps
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask_socketio import SocketIO
+from pytz import timezone
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -20,7 +21,7 @@ db = client["mydatabase"]
 collection_user = db["user"]
 collection_table = db["table"]
 
-scheduler = BackgroundScheduler()
+scheduler = BackgroundScheduler(timezone=timezone('Asia/Seoul'))
 scheduler.start()
 
 def token_required(f):
@@ -173,7 +174,7 @@ def person_info(current_user):
 @app.route("/room", methods=["GET"])
 def room_info():
     tables = list(collection_table.find({}, {"_id": 0}))
-    scheduler.add_job(logout_all_users, "cron", hour=21, minute=44)
+    scheduler.add_job(logout_all_users, "cron", hour=21, minute=52)
 
     return jsonify({"result": "success", "tables": tables})
 
