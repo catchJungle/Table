@@ -173,7 +173,7 @@ def person_info(current_user):
 @app.route("/room", methods=["GET"])
 def room_info():
     tables = list(collection_table.find({}, {"_id": 0}))
-    scheduler.add_job(logout_all_users, "cron", hour=20, minute=50)
+    scheduler.add_job(logout_all_users, "cron", hour=20, minute=56)
 
     return jsonify({"result": "success", "tables": tables})
 
