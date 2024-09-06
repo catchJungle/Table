@@ -174,7 +174,7 @@ def person_info(current_user):
 @app.route("/room", methods=["GET"])
 def room_info():
     tables = list(collection_table.find({}, {"_id": 0}))
-    scheduler.add_job(logout_all_users, "cron", hour=21, minute=52)
+    scheduler.add_job(logout_all_users, "cron", hour=2, minute=0)
 
     return jsonify({"result": "success", "tables": tables})
 
@@ -188,7 +188,7 @@ def reserve_table(current_user):
         return jsonify({"result": "fail", "message": "이미 예약하셨습니다."}), 400
 
     tableNum_receive = request.form["tableNum_give"]
-    time = datetime.now() + timedelta(minutes=3)
+    time = datetime.now() + timedelta(hours=2)
     tableNum = int(tableNum_receive)
     collection_table.update_one(
         {"tableNum": int(tableNum_receive)},
